@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual env / local config
+.venv/
+.env
+
+# macOS
+.DS_Store
+
+# Raw source docs
+*.pdf
+
+# Extraction artifacts (keep deployment index only)
+extraction_output/*
+!extraction_output/index/
+!extraction_output/index/openai-text-embedding-3-small.chunks.jsonl
+!extraction_output/index/openai-text-embedding-3-small.manifest.json

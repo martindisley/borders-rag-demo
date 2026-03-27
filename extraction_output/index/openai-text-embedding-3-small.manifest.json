@@ -1,0 +1,8 @@
+{
+  "input": "extraction_output/chunks/all.chunks.retrieval.jsonl",
+  "output": "extraction_output/index/openai-text-embedding-3-small.chunks.jsonl",
+  "model": "text-embedding-3-small",
+  "batch_size": 64,
+  "chunks": 278,
+  "embedding_dimensions": 1536
+}

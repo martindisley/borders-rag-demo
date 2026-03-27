@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: borders-rag-demo
+    env: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_CHAT_MODEL
+        value: gpt-4o-mini
+      - key: OPENAI_EMBEDDING_MODEL
+        value: text-embedding-3-small
+      - key: INDEX_PATH
+        value: extraction_output/index/openai-text-embedding-3-small.chunks.jsonl

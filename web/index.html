@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Borders RAG Demo</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;500;700&display=swap"
+    />
+    <style>
+      :root {
+        --bg: #f2efe5;
+        --panel: #fffcf4;
+        --ink: #1f1b17;
+        --muted: #5c5346;
+        --line: #cbc2b3;
+        --accent: #0f7a5c;
+        --accent-2: #8f3f2f;
+        --chip: #ece6da;
+        --shadow: 0 16px 40px rgba(31, 27, 23, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        min-height: 100vh;
+        font-family: Manrope, sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 80% 0%, #e6dfd0 0%, transparent 44%),
+          radial-gradient(circle at 0% 100%, #dfe7df 0%, transparent 40%),
+          var(--bg);
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      .shell {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 28px 18px 36px;
+      }
+
+      .mast {
+        display: grid;
+        grid-template-columns: 1.4fr 1fr;
+        gap: 12px;
+        align-items: end;
+      }
+
+      .title {
+        margin: 0;
+        font-family: Fraunces, serif;
+        font-size: clamp(2rem, 2.8vw, 3.2rem);
+        letter-spacing: -0.01em;
+        line-height: 0.98;
+      }
+
+      .subtitle {
+        margin: 12px 0 0;
+        color: var(--muted);
+        max-width: 62ch;
+      }
+
+      .status-card {
+        justify-self: end;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 10px 12px;
+        box-shadow: var(--shadow);
+        min-width: 245px;
+      }
+
+      .status-tag {
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+      }
+
+      .status-value {
+        margin-top: 5px;
+        font-weight: 700;
+      }
+
+      .grid {
+        margin-top: 18px;
+        display: grid;
+        grid-template-columns: 1.2fr 0.95fr;
+        gap: 14px;
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        box-shadow: var(--shadow);
+      }
+
+      .ask {
+        padding: 14px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .ask h2,
+      .answer h2,
+      .sources h2 {
+        margin: 0;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--muted);
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 110px;
+        resize: vertical;
+        border-radius: 10px;
+        border: 1px solid var(--line);
+        background: #fff;
+        color: var(--ink);
+        padding: 12px;
+        font: inherit;
+        line-height: 1.45;
+      }
+
+      .row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .row label {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      select,
+      button {
+        font: inherit;
+      }
+
+      select {
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: white;
+        padding: 7px 8px;
+      }
+
+      button {
+        border: 1px solid #0a5f48;
+        border-radius: 8px;
+        background: linear-gradient(160deg, #118868, var(--accent));
+        color: #fff;
+        padding: 8px 12px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      button[disabled] {
+        opacity: 0.6;
+        cursor: wait;
+      }
+
+      .hint {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+
+      .result {
+        margin-top: 12px;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .answer,
+      .sources {
+        padding: 14px;
+      }
+
+      .answer-body {
+        margin-top: 10px;
+        white-space: pre-wrap;
+        line-height: 1.55;
+      }
+
+      .source-list {
+        margin-top: 10px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .source-item {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 10px;
+        background: #fff;
+      }
+
+      .source-head {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: baseline;
+        margin-bottom: 6px;
+        font-size: 0.86rem;
+        color: var(--muted);
+      }
+
+      .source-id {
+        font-weight: 700;
+        color: var(--ink);
+        background: var(--chip);
+        border-radius: 999px;
+        padding: 2px 7px;
+      }
+
+      .source-score {
+        color: var(--accent-2);
+      }
+
+      .source-excerpt {
+        margin: 0;
+        line-height: 1.45;
+        font-size: 0.92rem;
+      }
+
+      .source-meta {
+        margin-top: 7px;
+        color: var(--muted);
+        font-size: 0.8rem;
+      }
+
+      @media (max-width: 900px) {
+        .mast {
+          grid-template-columns: 1fr;
+        }
+
+        .status-card {
+          justify-self: start;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="mast">
+        <div>
+          <h1 class="title">Borders RAG Demonstrator</h1>
+          <p class="subtitle">
+            Query Local Development Plan and Delivery Programme together, with source-backed answers for community discussion.
+          </p>
+        </div>
+        <aside class="status-card">
+          <div class="status-tag">System Status</div>
+          <div id="status" class="status-value">Ready.</div>
+        </aside>
+      </header>
+
+      <section class="grid">
+        <article class="card ask">
+          <h2>Question</h2>
+          <textarea
+            id="question"
+            placeholder="Try: What does Policy HD1 require for affordable housing, and how might delivery constraints affect implementation?"
+          ></textarea>
+          <div class="row">
+            <label for="topk">Source depth</label>
+            <select id="topk">
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5" selected>5</option>
+              <option value="6">6</option>
+            </select>
+            <button id="ask">Ask the model</button>
+          </div>
+          <p class="hint">Tip: press Ctrl/Cmd + Enter to run quickly.</p>
+        </article>
+
+        <div class="result">
+          <article class="card answer">
+            <h2>Answer</h2>
+            <div id="answer" class="answer-body">No answer yet.</div>
+          </article>
+
+          <aside class="card sources">
+            <h2>Sources</h2>
+            <div id="sources" class="source-list"></div>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const askButton = document.getElementById("ask");
+      const questionEl = document.getElementById("question");
+      const topKEl = document.getElementById("topk");
+      const statusEl = document.getElementById("status");
+      const answerEl = document.getElementById("answer");
+      const sourcesEl = document.getElementById("sources");
+
+      function escapeHtml(value) {
+        return value
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
+      }
+
+      function renderSources(sources) {
+        sourcesEl.innerHTML = "";
+        if (!sources || !sources.length) {
+          sourcesEl.textContent = "No sources returned.";
+          return;
+        }
+
+        for (const s of sources) {
+          const item = document.createElement("article");
+          item.className = "source-item";
+          item.innerHTML = `
+            <div class="source-head">
+              <span class="source-id">[${escapeHtml(s.source_id)}]</span>
+              <span>${escapeHtml(s.doc_title)}</span>
+              <span>p.${Number(s.page_start)}</span>
+              <span class="source-score">score ${Number(s.score).toFixed(3)}</span>
+            </div>
+            <p class="source-excerpt">${escapeHtml(s.excerpt)}</p>
+            <div class="source-meta">${escapeHtml(s.source_file)} | chunk ${escapeHtml(s.chunk_id)}</div>
+          `;
+          sourcesEl.appendChild(item);
+        }
+      }
+
+      async function askQuestion() {
+        const question = questionEl.value.trim();
+        const topK = Number(topKEl.value);
+        if (!question) {
+          statusEl.textContent = "Enter a question first.";
+          return;
+        }
+
+        askButton.disabled = true;
+        statusEl.textContent = "Retrieving relevant evidence and generating answer...";
+        answerEl.textContent = "";
+        sourcesEl.innerHTML = "";
+
+        try {
+          const res = await fetch("/api/query", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ question, top_k: topK }),
+          });
+
+          const data = await res.json();
+          if (!res.ok) {
+            throw new Error(data.detail || "Query failed");
+          }
+
+          answerEl.textContent = data.answer || "No answer returned.";
+          renderSources(data.sources || []);
+          statusEl.textContent = "Ready.";
+        } catch (err) {
+          statusEl.textContent = `Error: ${err.message}`;
+          answerEl.textContent = "";
+          sourcesEl.innerHTML = "";
+        } finally {
+          askButton.disabled = false;
+        }
+      }
+
+      askButton.addEventListener("click", askQuestion);
+      questionEl.addEventListener("keydown", (event) => {
+        if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+          askQuestion();
+        }
+      });
+    </script>
+  </body>
+</html>
