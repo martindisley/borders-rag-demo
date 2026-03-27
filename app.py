@@ -182,14 +182,20 @@ class RAGService:
         context = "\n\n".join(context_parts)
 
         system_prompt = (
-            "You answer questions about Scottish Borders planning documents. "
+            "You answer questions using two Scottish Borders planning documents: "
+            "(1) Local Development Plan 2024 (policy framework, strategic aims, and planning policies), and "
+            "(2) Delivery Programme 2024 (implementation status, actions, and delivery/monitoring detail). "
             "Use only the provided sources. If the answer is not in sources, say so. "
-            "Cite sources inline as [S1], [S2], etc. Keep answer concise and factual."
+            "When relevant, distinguish policy intent (LDP) from delivery evidence (Delivery Programme). "
+            "When sources from both documents are available, cross-reference both and cite each explicitly. "
+            "If only one document is represented in retrieved sources, state that limitation clearly. "
+            "Cite sources inline as [S1], [S2], etc. Keep the answer concise, factual, and explicit about uncertainty."
         )
         user_prompt = (
             f"Question:\n{question}\n\n"
             f"Sources:\n{context}\n\n"
-            "Provide a direct answer with inline source tags."
+            "Provide a direct answer with inline source tags. "
+            "If possible, include one brief sentence that compares policy intent vs delivery status."
         )
 
         headers = {

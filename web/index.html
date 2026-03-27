@@ -97,6 +97,12 @@
         display: grid;
         grid-template-columns: 1.2fr 0.95fr;
         gap: 14px;
+        align-items: start;
+      }
+
+      .left-column {
+        display: grid;
+        gap: 12px;
       }
 
       .card {
@@ -178,13 +184,6 @@
         margin: 0;
         color: var(--muted);
         font-size: 0.88rem;
-      }
-
-      .result {
-        margin-top: 12px;
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 12px;
       }
 
       .answer,
@@ -276,36 +275,36 @@
       </header>
 
       <section class="grid">
-        <article class="card ask">
-          <h2>Question</h2>
-          <textarea
-            id="question"
-            placeholder="Try: What does Policy HD1 require for affordable housing, and how might delivery constraints affect implementation?"
-          ></textarea>
-          <div class="row">
-            <label for="topk">Source depth</label>
-            <select id="topk">
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5" selected>5</option>
-              <option value="6">6</option>
-            </select>
-            <button id="ask">Ask the model</button>
-          </div>
-          <p class="hint">Tip: press Ctrl/Cmd + Enter to run quickly.</p>
-        </article>
+        <div class="left-column">
+          <article class="card ask">
+            <h2>Question</h2>
+            <textarea
+              id="question"
+              placeholder="Try: What does Policy HD1 require for affordable housing, and how might delivery constraints affect implementation?"
+            ></textarea>
+            <div class="row">
+              <label for="topk">Source depth</label>
+              <select id="topk">
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5" selected>5</option>
+                <option value="6">6</option>
+              </select>
+              <button id="ask">Ask the model</button>
+            </div>
+            <p class="hint">Tip: press Ctrl/Cmd + Enter to run quickly.</p>
+          </article>
 
-        <div class="result">
           <article class="card answer">
             <h2>Answer</h2>
             <div id="answer" class="answer-body">No answer yet.</div>
           </article>
-
-          <aside class="card sources">
-            <h2>Sources</h2>
-            <div id="sources" class="source-list"></div>
-          </aside>
         </div>
+
+        <aside class="card sources">
+          <h2>Sources</h2>
+          <div id="sources" class="source-list"></div>
+        </aside>
       </section>
     </main>
 
