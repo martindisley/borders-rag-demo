@@ -50,6 +50,7 @@ class SourceResult(BaseModel):
     page_end: int
     score: float
     excerpt: str
+    source_url: str | None = None
 
 
 class QueryResponse(BaseModel):
@@ -103,6 +104,16 @@ class RAGService:
             )
         )
         self.chunks: list[IndexedChunk] = []
+        self.source_url_map = {
+            "local-development-plan.pdf": "https://www.scotborders.gov.uk/downloads/file/12939/adopted-ldp2-volume-1-policies",
+            "delivery-programme.pdf": "https://www.scotborders.gov.uk/downloads/file/13155/delivery-programme-2024",
+        }
+
+    def source_url_for(self, source_file: str, page_start: int) -> str | None:
+        base = self.source_url_map.get(source_file)
+        if not base:
+            return None
+        return f"{base}#page={page_start}"
 
     def validate_config(self) -> None:
         if not self.openai_api_key:
@@ -233,6 +244,7 @@ class RAGService:
                     page_end=chunk.page_end,
                     score=round(score, 6),
                     excerpt=truncate_excerpt(chunk.text),
+                    source_url=self.source_url_for(chunk.source_file, chunk.page_start),
                 )
             )
 

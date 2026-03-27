@@ -70,6 +70,14 @@
         max-width: 62ch;
       }
 
+      .instructions {
+        margin: 10px 0 0;
+        max-width: 70ch;
+        color: var(--muted);
+        font-size: 0.92rem;
+        line-height: 1.45;
+      }
+
       .status-card {
         justify-self: end;
         background: var(--panel);
@@ -210,6 +218,30 @@
         background: #fff;
       }
 
+      .source-item.clickable {
+        display: block;
+        color: inherit;
+        text-decoration: none;
+        cursor: pointer;
+        transition:
+          transform 140ms ease,
+          border-color 140ms ease,
+          box-shadow 140ms ease,
+          background-color 140ms ease;
+      }
+
+      .source-item.clickable:hover {
+        transform: translateY(-1px);
+        border-color: #a89d8c;
+        background: #fffcf2;
+        box-shadow: 0 8px 20px rgba(31, 27, 23, 0.08);
+      }
+
+      .source-item.clickable:focus-visible {
+        outline: 2px solid #0f7a5c;
+        outline-offset: 2px;
+      }
+
       .source-head {
         display: flex;
         flex-wrap: wrap;
@@ -266,6 +298,9 @@
           <h1 class="title">Borders Council Planning Document Explorer</h1>
           <p class="subtitle">
             Query Local Development Plan and Delivery Programme together, with source-backed answers for community discussion.
+          </p>
+          <p class="instructions">
+            Ask a planning question, then review the cited source cards on the right and click any card to open the official council PDF at the relevant page.
           </p>
         </div>
         <aside class="status-card">
@@ -333,8 +368,18 @@
         }
 
         for (const s of sources) {
-          const item = document.createElement("article");
-          item.className = "source-item";
+          const isClickable = Boolean(s.source_url);
+          const item = document.createElement(isClickable ? "a" : "article");
+          item.className = `source-item${isClickable ? " clickable" : ""}`;
+          if (isClickable) {
+            item.href = s.source_url;
+            item.target = "_blank";
+            item.rel = "noopener noreferrer";
+            item.setAttribute(
+              "aria-label",
+              `Open ${s.doc_title} page ${Number(s.page_start)} in a new tab`
+            );
+          }
           item.innerHTML = `
             <div class="source-head">
               <span class="source-id">[${escapeHtml(s.source_id)}]</span>
