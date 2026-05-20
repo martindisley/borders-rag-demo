@@ -1,4 +1,4 @@
-# Borders Council Planning Document Explorer
+# Civic Crossref
 
 Source-grounded RAG demo for querying two Scottish Borders planning documents:
 
@@ -47,7 +47,7 @@ The app is intentionally lightweight: FastAPI backend, in-memory cosine retrieva
 ## Local Setup
 
 ```bash
-cd /Users/martindisley/workspace/borders-rag-demo
+cd /Users/martindisley/workspace/civic-crossref
 uv venv .venv
 uv pip install --python .venv/bin/python -r requirements.txt
 ```
@@ -152,7 +152,7 @@ uvicorn app:app --host 0.0.0.0 --port $PORT
 
 Custom domain target:
 
-- `borders-rag-demo.martindisley.co.uk`
+- `civic-crossref.martindisley.co.uk`
 
 ## Notes and Limitations
 

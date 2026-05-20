@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: borders-rag-demo
+    name: civic-crossref
     env: python
     plan: starter
     buildCommand: pip install -r requirements.txt

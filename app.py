@@ -256,7 +256,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent
 WEB_INDEX = PROJECT_ROOT / "web" / "index.html"
 rag_service = RAGService(PROJECT_ROOT)
 
-app = FastAPI(title="Borders RAG Demo API", version="0.1.0")
+app = FastAPI(title="Civic Crossref API", version="0.1.0")
 
 
 @app.on_event("startup")
