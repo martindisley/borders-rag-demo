@@ -65,8 +65,11 @@
       }
 
       .subtitle {
-        margin: 12px 0 0;
+        margin: 8px 0 0;
         color: var(--muted);
+        font-size: 1rem;
+        font-weight: 500;
+        letter-spacing: 0.01em;
         max-width: 62ch;
       }
 
@@ -74,9 +77,100 @@
         margin: 10px 0 0;
         max-width: 70ch;
         color: var(--muted);
-        font-size: 0.92rem;
-        line-height: 1.45;
+        font-size: 0.88rem;
+        line-height: 1.5;
       }
+
+      .docs-section {
+        margin-top: 24px;
+      }
+
+      .docs-heading {
+        margin: 0 0 6px;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--muted);
+      }
+
+      .docs-intro {
+        margin: 0 0 14px;
+        max-width: 80ch;
+        font-size: 0.9rem;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      .docs-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        max-width: 780px;
+      }
+
+      .doc-card {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        padding: 14px 16px;
+        border-radius: 14px;
+        border: 1px solid var(--line);
+        background: var(--panel);
+        box-shadow: var(--shadow);
+        text-decoration: none;
+        color: inherit;
+        transition:
+          transform 140ms ease,
+          border-color 140ms ease,
+          box-shadow 140ms ease;
+      }
+
+      .doc-card:hover {
+        transform: translateY(-2px);
+        border-color: #a89d8c;
+        box-shadow: 0 12px 28px rgba(31, 27, 23, 0.1);
+      }
+
+      .doc-card--a {
+        border-left: 4px solid var(--accent);
+      }
+
+      .doc-card--b {
+        border-left: 4px solid var(--accent-2);
+      }
+
+      .doc-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+      }
+
+      .doc-card--a .doc-label { color: var(--accent); }
+      .doc-card--b .doc-label { color: var(--accent-2); }
+
+      .doc-title {
+        font-family: Fraunces, serif;
+        font-size: 1.05rem;
+        font-weight: 700;
+        line-height: 1.2;
+        color: var(--ink);
+      }
+
+      .doc-desc {
+        font-size: 0.84rem;
+        color: var(--muted);
+        line-height: 1.4;
+      }
+
+      .doc-link {
+        margin-top: 4px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--accent);
+      }
+
+      .doc-card--b .doc-link { color: var(--accent-2); }
 
       .status-card {
         justify-self: end;
@@ -288,6 +382,10 @@
         .grid {
           grid-template-columns: 1fr;
         }
+
+        .docs-grid {
+          grid-template-columns: 1fr;
+        }
       }
     </style>
   </head>
@@ -296,11 +394,9 @@
       <header class="mast">
         <div>
           <h1 class="title">Civic Crossref</h1>
-          <p class="subtitle">
-            Query Local Development Plan and Delivery Programme together, with source-backed answers for community discussion.
-          </p>
+          <p class="subtitle">Borders Council Planning Doc Demo</p>
           <p class="instructions">
-            Ask a planning question, then review the cited source cards on the right and click any card to open the official council PDF at the relevant page.
+            This is a prototype implementation of Civic Crossref — a design pattern for helping the public scrutinise council policy by querying and cross-referencing planning and delivery document pairs. The documents queried here are hardcoded to two specific Scottish Borders Council publications.
           </p>
         </div>
         <aside class="status-card">
@@ -308,6 +404,25 @@
           <div id="status" class="status-value">Ready.</div>
         </aside>
       </header>
+
+      <section class="docs-section">
+        <h2 class="docs-heading">Source Documents</h2>
+        <p class="docs-intro">This app enables members of the public to scrutinise the implementation of council policy by cross-referencing a planning policy document with its corresponding delivery programme. Ask a question below and the model will retrieve and cite relevant passages from both.</p>
+        <div class="docs-grid">
+          <a class="doc-card doc-card--a" href="https://www.scotborders.gov.uk/downloads/file/12939/adopted-ldp2-volume-1-policies" target="_blank" rel="noopener noreferrer">
+            <span class="doc-label">Document A — Policy</span>
+            <span class="doc-title">Local Development Plan 2024</span>
+            <span class="doc-desc">Scottish Borders Council — strategic planning policies, spatial framework and land use designations.</span>
+            <span class="doc-link">View official document ↗</span>
+          </a>
+          <a class="doc-card doc-card--b" href="https://www.scotborders.gov.uk/downloads/file/13155/delivery-programme-2024" target="_blank" rel="noopener noreferrer">
+            <span class="doc-label">Document B — Delivery</span>
+            <span class="doc-title">Delivery Programme 2024</span>
+            <span class="doc-desc">Scottish Borders Council — implementation actions, monitoring and delivery of the Local Development Plan.</span>
+            <span class="doc-link">View official document ↗</span>
+          </a>
+        </div>
+      </section>
 
       <section class="grid">
         <div class="left-column">
@@ -318,13 +433,6 @@
               placeholder="Try: What does Policy HD1 require for affordable housing, and how might delivery constraints affect implementation?"
             ></textarea>
             <div class="row">
-              <label for="topk">Source depth</label>
-              <select id="topk">
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5" selected>5</option>
-                <option value="6">6</option>
-              </select>
               <button id="ask">Ask the model</button>
             </div>
             <p class="hint">Tip: press Ctrl/Cmd + Enter to run quickly.</p>
@@ -346,7 +454,6 @@
     <script>
       const askButton = document.getElementById("ask");
       const questionEl = document.getElementById("question");
-      const topKEl = document.getElementById("topk");
       const statusEl = document.getElementById("status");
       const answerEl = document.getElementById("answer");
       const sourcesEl = document.getElementById("sources");
@@ -396,7 +503,6 @@
 
       async function askQuestion() {
         const question = questionEl.value.trim();
-        const topK = Number(topKEl.value);
         if (!question) {
           statusEl.textContent = "Enter a question first.";
           return;
@@ -411,7 +517,7 @@
           const res = await fetch("/api/query", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ question, top_k: topK }),
+            body: JSON.stringify({ question }),
           });
 
           const data = await res.json();
