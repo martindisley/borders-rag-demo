@@ -49,7 +49,7 @@ The app is intentionally lightweight: FastAPI backend, in-memory cosine retrieva
 ```bash
 cd /Users/martindisley/workspace/civic-crossref
 uv venv .venv
-uv pip install --python .venv/bin/python -r requirements.txt
+uv sync
 ```
 
 Create `.env`:
