@@ -6,6 +6,7 @@ import math
 import os
 import urllib.error
 import urllib.request
+from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -254,37 +255,42 @@ class RAGService:
 load_dotenv()
 PROJECT_ROOT = Path(__file__).resolve().parent
 WEB_INDEX = PROJECT_ROOT / "web" / "index.html"
-rag_service = RAGService(PROJECT_ROOT)
-
-app = FastAPI(title="Civic Crossref API", version="0.1.0")
 
 
-@app.on_event("startup")
-def startup_event() -> None:
-    rag_service.validate_config()
-    rag_service.load_index()
+def create_app(service: RAGService | None = None) -> FastAPI:
+    rag_service = service or RAGService(PROJECT_ROOT)
+
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+        rag_service.validate_config()
+        rag_service.load_index()
+        yield
+
+    app = FastAPI(title="Civic Crossref API", version="0.1.0", lifespan=lifespan)
+
+    @app.get("/api/health")
+    def health() -> dict:
+        return {
+            "ok": True,
+            "chunks_loaded": len(rag_service.chunks),
+            "embedding_model": rag_service.embedding_model,
+            "chat_model": rag_service.chat_model,
+        }
+
+    @app.get("/")
+    def web_app() -> FileResponse:
+        if not WEB_INDEX.exists():
+            raise HTTPException(status_code=404, detail="Web UI not found")
+        return FileResponse(WEB_INDEX)
+
+    @app.post("/api/query", response_model=QueryResponse)
+    def query(req: QueryRequest) -> QueryResponse:
+        try:
+            return rag_service.query(req.question, req.top_k)
+        except RuntimeError as e:
+            raise HTTPException(status_code=500, detail=str(e)) from e
+
+    return app
 
 
-@app.get("/api/health")
-def health() -> dict:
-    return {
-        "ok": True,
-        "chunks_loaded": len(rag_service.chunks),
-        "embedding_model": rag_service.embedding_model,
-        "chat_model": rag_service.chat_model,
-    }
-
-
-@app.get("/")
-def web_app() -> FileResponse:
-    if not WEB_INDEX.exists():
-        raise HTTPException(status_code=404, detail="Web UI not found")
-    return FileResponse(WEB_INDEX)
-
-
-@app.post("/api/query", response_model=QueryResponse)
-def query(req: QueryRequest) -> QueryResponse:
-    try:
-        return rag_service.query(req.question, req.top_k)
-    except RuntimeError as e:
-        raise HTTPException(status_code=500, detail=str(e)) from e
+app = create_app()

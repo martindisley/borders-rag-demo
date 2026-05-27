@@ -66,7 +66,7 @@ MISTRAL_API_KEY=...
 Run the app:
 
 ```bash
-.venv/bin/uvicorn app:app --host 127.0.0.1 --port 8000 --reload
+uv run python -m uvicorn app:app --host 127.0.0.1 --port 8000 --reload
 ```
 
 Open `http://127.0.0.1:8000/`.
@@ -96,13 +96,13 @@ Only needed when rebuilding the corpus/index.
 Without Mistral:
 
 ```bash
-.venv/bin/python scripts/extract_with_fallback.py
+uv run python scripts/extract_with_fallback.py
 ```
 
 With selective Mistral fallback:
 
 ```bash
-.venv/bin/python scripts/extract_with_fallback.py --enable-mistral --mistral-max-pages-per-doc 30
+uv run python scripts/extract_with_fallback.py --enable-mistral --mistral-max-pages-per-doc 30
 ```
 
 Output (quality-checked pages):
@@ -112,7 +112,7 @@ Output (quality-checked pages):
 ### 2) Chunk
 
 ```bash
-.venv/bin/python scripts/chunk_quality_pages.py
+uv run python scripts/chunk_quality_pages.py
 ```
 
 Output (retrieval chunks):
@@ -122,7 +122,7 @@ Output (retrieval chunks):
 ### 3) Build embeddings index
 
 ```bash
-.venv/bin/python scripts/build_retrieval_index.py
+uv run python scripts/build_retrieval_index.py
 ```
 
 Output (runtime index):
@@ -147,7 +147,7 @@ Optional overrides:
 Start command:
 
 ```bash
-uvicorn app:app --host 0.0.0.0 --port $PORT
+uv run python -m uvicorn app:app --host 0.0.0.0 --port $PORT
 ```
 
 Custom domain target:
