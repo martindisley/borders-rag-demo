@@ -9,9 +9,10 @@ class FakeRAGService:
     def __init__(self) -> None:
         self.embedding_model = "test-embedding"
         self.chat_model = "test-chat"
+        self.openai_api_key = ""
         self.chunks = [object(), object()]
         self.startup_calls: list[str] = []
-        self.last_query: tuple[str, int] | None = None
+        self.last_query: tuple[str, int, str | None, str | None] | None = None
 
     def validate_config(self) -> None:
         self.startup_calls.append("validate_config")
@@ -19,8 +20,17 @@ class FakeRAGService:
     def load_index(self) -> None:
         self.startup_calls.append("load_index")
 
-    def query(self, question: str, top_k: int) -> QueryResponse:
-        self.last_query = (question, top_k)
+    def has_server_api_key(self) -> bool:
+        return bool(self.openai_api_key)
+
+    def query(
+        self,
+        question: str,
+        top_k: int,
+        api_key_override: str | None = None,
+        chat_model_override: str | None = None,
+    ) -> QueryResponse:
+        self.last_query = (question, top_k, api_key_override, chat_model_override)
         return QueryResponse(
             answer="Test answer [S1]",
             sources=[
@@ -41,7 +51,13 @@ class FakeRAGService:
 
 
 class ErrorRAGService(FakeRAGService):
-    def query(self, question: str, top_k: int) -> QueryResponse:
+    def query(
+        self,
+        question: str,
+        top_k: int,
+        api_key_override: str | None = None,
+        chat_model_override: str | None = None,
+    ) -> QueryResponse:
         raise RuntimeError("upstream error")
 
 
@@ -62,6 +78,7 @@ def test_health_returns_service_state() -> None:
         "chunks_loaded": 2,
         "embedding_model": "test-embedding",
         "chat_model": "test-chat",
+        "server_key_available": False,
     }
     assert service.startup_calls == ["validate_config", "load_index"]
 
@@ -79,7 +96,45 @@ def test_query_returns_structured_response() -> None:
     data = response.json()
     assert data["answer"] == "Test answer [S1]"
     assert data["sources"][0]["source_id"] == "S1"
-    assert service.last_query == ("What does Policy HD1 cover?", 3)
+    assert service.last_query == ("What does Policy HD1 cover?", 3, None, None)
+
+
+def test_query_forwards_byok_header() -> None:
+    service = FakeRAGService()
+
+    with build_client(service) as client:
+        response = client.post(
+            "/api/query",
+            json={"question": "What does Policy HD1 cover?", "top_k": 3},
+            headers={"X-OpenAI-API-Key": "sk-test-user-key"},
+        )
+
+    assert response.status_code == 200
+    assert service.last_query == (
+        "What does Policy HD1 cover?",
+        3,
+        "sk-test-user-key",
+        None,
+    )
+
+
+def test_query_forwards_chat_model_header() -> None:
+    service = FakeRAGService()
+
+    with build_client(service) as client:
+        response = client.post(
+            "/api/query",
+            json={"question": "What does Policy HD1 cover?", "top_k": 3},
+            headers={"X-OpenAI-Chat-Model": "gpt-4o-mini"},
+        )
+
+    assert response.status_code == 200
+    assert service.last_query == (
+        "What does Policy HD1 cover?",
+        3,
+        None,
+        "gpt-4o-mini",
+    )
 
 
 def test_query_rejects_short_question() -> None:

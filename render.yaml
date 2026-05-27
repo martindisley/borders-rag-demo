@@ -6,8 +6,6 @@ services:
     buildCommand: pip install uv && uv sync --frozen
     startCommand: uv run python -m uvicorn app:app --host 0.0.0.0 --port $PORT
     envVars:
-      - key: OPENAI_API_KEY
-        sync: false
       - key: OPENAI_CHAT_MODEL
         value: gpt-4o-mini
       - key: OPENAI_EMBEDDING_MODEL

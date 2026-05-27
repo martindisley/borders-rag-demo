@@ -49,11 +49,43 @@
         padding: 28px 18px 36px;
       }
 
-      .mast {
+      .page-layout {
         display: grid;
-        grid-template-columns: 1.4fr 1fr;
-        gap: 12px;
-        align-items: end;
+        grid-template-columns: 1fr 340px;
+        grid-template-areas:
+          "top-left top-right"
+          "bottom-left bottom-right";
+        gap: 18px;
+        align-items: start;
+      }
+
+      .top-left {
+        grid-area: top-left;
+        display: grid;
+        gap: 18px;
+        min-width: 0;
+      }
+
+      .top-right {
+        grid-area: top-right;
+      }
+
+      .bottom-left {
+        grid-area: bottom-left;
+      }
+
+      .bottom-right {
+        grid-area: bottom-right;
+      }
+
+      .top-right,
+      .bottom-right {
+        display: grid;
+        align-items: start;
+      }
+
+      .mast {
+        display: block;
       }
 
       .wordmark {
@@ -83,7 +115,7 @@
       }
 
       .docs-section {
-        margin-top: 24px;
+        margin-top: 0;
       }
 
       .docs-heading {
@@ -106,7 +138,7 @@
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 12px;
-        max-width: 780px;
+        align-items: stretch;
       }
 
       .doc-card {
@@ -174,15 +206,49 @@
       .doc-card--b .doc-link { color: var(--accent-2); }
 
       .status-card {
-        justify-self: end;
         background: var(--panel);
         border: 1px solid var(--line);
         border-radius: 14px;
-        padding: 12px 14px;
+        padding: 10px 12px;
         box-shadow: var(--shadow);
-        min-width: 245px;
         display: grid;
         gap: 8px;
+      }
+
+      .status-controls {
+        margin-top: 2px;
+        padding-top: 10px;
+        border-top: 1px solid var(--line);
+        display: grid;
+        gap: 10px;
+      }
+
+      .status-control-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .status-control-label {
+        color: var(--muted);
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .status-chip {
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: var(--chip);
+        color: var(--ink);
+        padding: 2px 8px;
+        font-size: 0.75rem;
+        font-weight: 700;
+      }
+
+      .status-select {
+        width: 100%;
       }
 
       .status-row {
@@ -242,15 +308,7 @@
         line-height: 1.4;
       }
 
-      .grid {
-        margin-top: 18px;
-        display: grid;
-        grid-template-columns: 1.2fr 0.95fr;
-        gap: 14px;
-        align-items: start;
-      }
-
-      .left-column {
+      .query-section {
         display: grid;
         gap: 12px;
       }
@@ -289,6 +347,29 @@
         padding: 12px;
         font: inherit;
         line-height: 1.45;
+      }
+
+      input[type="password"] {
+        width: 100%;
+        border-radius: 10px;
+        border: 1px solid var(--line);
+        background: #fff;
+        color: var(--ink);
+        padding: 10px 12px;
+        font: inherit;
+      }
+
+      .field {
+        display: grid;
+        gap: 6px;
+      }
+
+      .field label {
+        color: var(--muted);
+        font-size: 0.84rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-weight: 700;
       }
 
       .row {
@@ -330,6 +411,68 @@
         cursor: wait;
       }
 
+      .button-secondary {
+        border-color: var(--line);
+        background: #fff;
+        color: var(--ink);
+      }
+
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        background: rgba(31, 27, 23, 0.4);
+        z-index: 50;
+      }
+
+      .modal-backdrop.is-open {
+        display: flex;
+      }
+
+      .modal-card {
+        width: min(440px, 100%);
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        box-shadow: var(--shadow);
+        padding: 16px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .modal-title {
+        margin: 0;
+        font-size: 1rem;
+      }
+
+      .modal-text {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.45;
+      }
+
+      .modal-field {
+        display: grid;
+        gap: 6px;
+      }
+
+      .modal-field label {
+        color: var(--muted);
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-weight: 700;
+      }
+
+      .modal-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+      }
+
       .hint {
         margin: 0;
         color: var(--muted);
@@ -339,6 +482,10 @@
       .answer,
       .sources {
         padding: 14px;
+      }
+
+      .sources {
+        min-height: 200px;
       }
 
       .answer-body {
@@ -419,16 +566,13 @@
       }
 
       @media (max-width: 900px) {
-        .mast {
+        .page-layout {
           grid-template-columns: 1fr;
-        }
-
-        .status-card {
-          justify-self: start;
-        }
-
-        .grid {
-          grid-template-columns: 1fr;
+          grid-template-areas:
+            "top-left"
+            "top-right"
+            "bottom-left"
+            "bottom-right";
         }
 
         .docs-grid {
@@ -439,69 +583,109 @@
   </head>
   <body>
     <main class="shell">
-      <header class="mast">
-        <div>
-          <h1 class="wordmark">Civic Crossref</h1>
-          <p class="subtitle">Borders Council Planning Doc Demo</p>
-          <p class="instructions">
-            This is a prototype implementation of Civic Crossref — a design pattern for helping the public scrutinise council policy by querying and cross-referencing planning and delivery document pairs. The documents queried here are hardcoded to two specific Scottish Borders Council publications.
-          </p>
-        </div>
-        <aside class="status-card">
-          <div class="status-row">
-            <span id="status-dot" class="status-dot" data-state="checking"></span>
-            <span class="status-label">System Status</span>
-          </div>
-          <div id="status" class="status-value">Checking…</div>
-          <div id="status-meta" class="status-meta"></div>
-        </aside>
-      </header>
+      <div class="page-layout">
+        <div class="top-left">
+          <header class="mast">
+            <h1 class="wordmark">Civic Crossref</h1>
+            <p class="subtitle">Borders Council Planning Doc Demo</p>
+            <p class="instructions">
+              This is a prototype implementation of Civic Crossref — a design pattern for helping the public scrutinise council policy by querying and cross-referencing planning and delivery document pairs. The documents queried here are hardcoded to two specific Scottish Borders Council publications.
+            </p>
+          </header>
 
-      <section class="docs-section">
-        <h2 class="docs-heading">Source Documents</h2>
-        <p class="docs-intro">This app enables members of the public to scrutinise the implementation of council policy by cross-referencing a planning policy document with its corresponding delivery programme. Ask a question below and the model will retrieve and cite relevant passages from both.</p>
-        <div class="docs-grid">
-          <a class="doc-card doc-card--a" href="https://www.scotborders.gov.uk/downloads/file/12939/adopted-ldp2-volume-1-policies" target="_blank" rel="noopener noreferrer">
-            <span class="doc-label">Document A — Policy</span>
-            <span class="doc-name">Local Development Plan 2024</span>
-            <span class="doc-desc">Scottish Borders Council — strategic planning policies, spatial framework and land use designations.</span>
-            <span class="doc-link">View official document ↗</span>
-          </a>
-          <a class="doc-card doc-card--b" href="https://www.scotborders.gov.uk/downloads/file/13155/delivery-programme-2024" target="_blank" rel="noopener noreferrer">
-            <span class="doc-label">Document B — Delivery</span>
-            <span class="doc-name">Delivery Programme 2024</span>
-            <span class="doc-desc">Scottish Borders Council — implementation actions, monitoring and delivery of the Local Development Plan.</span>
-            <span class="doc-link">View official document ↗</span>
-          </a>
-        </div>
-      </section>
-
-      <section class="grid">
-        <div class="left-column">
-          <article class="card ask">
-            <h2>Question</h2>
-            <textarea
-              id="question"
-              placeholder="Try: What does Policy HD1 require for affordable housing, and how might delivery constraints affect implementation?"
-            ></textarea>
-            <div class="row">
-              <button id="ask">Ask the model</button>
+          <section class="docs-section">
+            <h2 class="docs-heading">Source Documents</h2>
+            <p class="docs-intro">This app enables members of the public to scrutinise the implementation of council policy by cross-referencing a planning policy document with its corresponding delivery programme.</p>
+            <div class="docs-grid">
+              <a class="doc-card doc-card--a" href="https://www.scotborders.gov.uk/downloads/file/12939/adopted-ldp2-volume-1-policies" target="_blank" rel="noopener noreferrer">
+                <span class="doc-label">Document A — Policy</span>
+                <span class="doc-name">Local Development Plan 2024</span>
+                <span class="doc-desc">Scottish Borders Council — strategic planning policies, spatial framework and land use designations.</span>
+                <span class="doc-link">View official document ↗</span>
+              </a>
+              <a class="doc-card doc-card--b" href="https://www.scotborders.gov.uk/downloads/file/13155/delivery-programme-2024" target="_blank" rel="noopener noreferrer">
+                <span class="doc-label">Document B — Delivery</span>
+                <span class="doc-name">Delivery Programme 2024</span>
+                <span class="doc-desc">Scottish Borders Council — implementation actions, monitoring and delivery of the Local Development Plan.</span>
+                <span class="doc-link">View official document ↗</span>
+              </a>
             </div>
-            <p class="hint">Tip: press Ctrl/Cmd + Enter to run quickly.</p>
-          </article>
+          </section>
 
-          <article class="card answer">
-            <h2>Answer</h2>
-            <div id="answer" class="answer-body">No answer yet.</div>
-          </article>
         </div>
 
-        <aside class="card sources">
-          <h2>Sources</h2>
-          <div id="sources" class="source-list"></div>
-        </aside>
-      </section>
+        <div class="top-right">
+          <aside class="status-card">
+            <div class="status-row">
+              <span id="status-dot" class="status-dot" data-state="checking"></span>
+              <span class="status-label">System Status</span>
+            </div>
+            <div id="status" class="status-value">Checking…</div>
+            <div id="status-meta" class="status-meta"></div>
+            <div class="status-controls">
+              <div class="status-control-row">
+                <span class="status-control-label">BYOK</span>
+                <span id="byok-state" class="status-chip">Checking</span>
+              </div>
+              <button id="open-key-modal" class="button-secondary" type="button">Manage key</button>
+              <div class="field">
+                <label for="chat-model-select">Answer model</label>
+                <select id="chat-model-select" class="status-select">
+                  <option value="gpt-4o-mini">gpt-4o-mini</option>
+                  <option value="gpt-4.1-mini">gpt-4.1-mini</option>
+                  <option value="gpt-4.1-nano">gpt-4.1-nano</option>
+                  <option value="o4-mini">o4-mini</option>
+                </select>
+              </div>
+              <button id="clear-key" class="button-secondary" type="button">Clear saved key</button>
+            </div>
+          </aside>
+        </div>
+
+        <div class="bottom-left">
+          <div class="query-section">
+            <article class="card ask">
+              <h2>Question</h2>
+              <textarea
+                id="question"
+                placeholder="Try: What does Policy HD1 require for affordable housing, and how might delivery constraints affect implementation?"
+              ></textarea>
+              <div class="row">
+                <button id="ask">Ask the model</button>
+              </div>
+              <p class="hint">Tip: press Ctrl/Cmd + Enter to run quickly.</p>
+            </article>
+
+            <article class="card answer">
+              <h2>Answer</h2>
+              <div id="answer" class="answer-body">No answer yet.</div>
+            </article>
+          </div>
+        </div>
+
+        <div class="bottom-right">
+          <aside class="card sources">
+            <h2>Sources</h2>
+            <div id="sources" class="source-list"></div>
+          </aside>
+        </div>
+      </div>
     </main>
+
+    <div id="key-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="key-modal-title" aria-describedby="key-modal-text">
+      <div class="modal-card">
+        <h3 id="key-modal-title" class="modal-title">OpenAI API key</h3>
+        <p id="key-modal-text" class="modal-text">Saved locally in this browser and sent as <code>X-OpenAI-API-Key</code> for each query.</p>
+        <div class="modal-field">
+          <label for="modal-api-key">API key</label>
+          <input id="modal-api-key" type="password" placeholder="sk-..." autocomplete="off" spellcheck="false" />
+        </div>
+        <div class="modal-actions">
+          <button id="cancel-key-modal" class="button-secondary" type="button">Cancel</button>
+          <button id="save-key" type="button">Save key</button>
+        </div>
+      </div>
+    </div>
 
     <script>
       const askButton = document.getElementById("ask");
@@ -511,11 +695,45 @@
       const statusMeta = document.getElementById("status-meta");
       const answerEl = document.getElementById("answer");
       const sourcesEl = document.getElementById("sources");
+      const byokStateEl = document.getElementById("byok-state");
+      const openKeyModalButton = document.getElementById("open-key-modal");
+      const clearKeyButton = document.getElementById("clear-key");
+      const chatModelSelectEl = document.getElementById("chat-model-select");
+      const keyModal = document.getElementById("key-modal");
+      const modalApiKeyEl = document.getElementById("modal-api-key");
+      const cancelKeyModalButton = document.getElementById("cancel-key-modal");
+      const saveKeyButton = document.getElementById("save-key");
+      const API_KEY_STORAGE = "civic-crossref.openai_api_key";
+      const CHAT_MODEL_STORAGE = "civic-crossref.chat_model";
+      let serverKeyAvailable = false;
+      let healthMeta = "";
+      let currentApiKey = "";
+
+      function updateByokState() {
+        if (currentApiKey) {
+          byokStateEl.textContent = "Saved";
+        } else if (serverKeyAvailable) {
+          byokStateEl.textContent = "Server fallback";
+        } else {
+          byokStateEl.textContent = "Required";
+        }
+        clearKeyButton.disabled = !currentApiKey;
+      }
 
       function setStatus(state, message, meta = "") {
         statusDot.dataset.state = state;
         statusEl.textContent = message;
         statusMeta.textContent = meta;
+      }
+
+      function openKeyModal() {
+        modalApiKeyEl.value = currentApiKey;
+        keyModal.classList.add("is-open");
+        modalApiKeyEl.focus();
+      }
+
+      function closeKeyModal() {
+        keyModal.classList.remove("is-open");
       }
 
       async function checkHealth() {
@@ -524,10 +742,16 @@
           const res = await fetch("/api/health");
           const data = await res.json();
           if (data.ok) {
+            serverKeyAvailable = Boolean(data.server_key_available);
+            healthMeta = `${data.chunks_loaded} chunks · ${data.embedding_model} · ${data.chat_model} · ${serverKeyAvailable ? "server key" : "BYOK required"}`;
+            if (!chatModelSelectEl.value) {
+              chatModelSelectEl.value = data.chat_model;
+            }
+            updateByokState();
             setStatus(
               "ready",
               "Ready",
-              `${data.chunks_loaded} chunks · ${data.embedding_model} · ${data.chat_model}`
+              healthMeta
             );
           } else {
             setStatus("error", "Unavailable");
@@ -582,8 +806,14 @@
 
       async function askQuestion() {
         const question = questionEl.value.trim();
+        const apiKey = currentApiKey;
+        const chatModel = chatModelSelectEl.value.trim();
         if (!question) {
           setStatus("error", "Enter a question first.");
+          return;
+        }
+        if (!apiKey && !serverKeyAvailable) {
+          setStatus("error", "Enter your OpenAI API key.");
           return;
         }
 
@@ -592,31 +822,110 @@
         answerEl.textContent = "";
         sourcesEl.innerHTML = "";
 
+        const controller = new AbortController();
+        const timeoutId = window.setTimeout(() => controller.abort(), 45000);
+
         try {
+          const headers = { "Content-Type": "application/json" };
+          if (apiKey) {
+            headers["X-OpenAI-API-Key"] = apiKey;
+          }
+          if (chatModel) {
+            headers["X-OpenAI-Chat-Model"] = chatModel;
+          }
+
           const res = await fetch("/api/query", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers,
+            signal: controller.signal,
             body: JSON.stringify({ question }),
           });
 
-          const data = await res.json();
+          const data = await res.json().catch(() => ({}));
           if (!res.ok) {
             throw new Error(data.detail || "Query failed");
           }
 
           answerEl.textContent = data.answer || "No answer returned.";
           renderSources(data.sources || []);
-          setStatus("ready", "Ready");
+          setStatus("ready", "Ready", healthMeta);
         } catch (err) {
-          setStatus("error", "Error", err.message);
+          const message = err.name === "AbortError"
+            ? "Query timed out after 45s"
+            : (err.message || "Query failed");
+          setStatus("error", "Error", message);
           answerEl.textContent = "";
           sourcesEl.innerHTML = "";
         } finally {
+          window.clearTimeout(timeoutId);
           askButton.disabled = false;
         }
       }
 
       askButton.addEventListener("click", askQuestion);
+      const savedApiKey = localStorage.getItem(API_KEY_STORAGE);
+      if (savedApiKey) {
+        currentApiKey = savedApiKey;
+      }
+      const savedChatModel = localStorage.getItem(CHAT_MODEL_STORAGE);
+      if (savedChatModel) {
+        chatModelSelectEl.value = savedChatModel;
+      }
+
+      openKeyModalButton.addEventListener("click", openKeyModal);
+      cancelKeyModalButton.addEventListener("click", () => {
+        closeKeyModal();
+        openKeyModalButton.focus();
+      });
+      saveKeyButton.addEventListener("click", () => {
+        currentApiKey = modalApiKeyEl.value.trim();
+        if (currentApiKey) {
+          localStorage.setItem(API_KEY_STORAGE, currentApiKey);
+        } else {
+          localStorage.removeItem(API_KEY_STORAGE);
+        }
+        updateByokState();
+        closeKeyModal();
+        openKeyModalButton.focus();
+        setStatus("ready", "Key updated", healthMeta);
+      });
+      modalApiKeyEl.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          saveKeyButton.click();
+        }
+      });
+
+      clearKeyButton.addEventListener("click", () => {
+        currentApiKey = "";
+        localStorage.removeItem(API_KEY_STORAGE);
+        updateByokState();
+        clearKeyButton.focus();
+        setStatus("ready", "Saved key cleared", healthMeta);
+      });
+
+      chatModelSelectEl.addEventListener("change", () => {
+        const model = chatModelSelectEl.value.trim();
+        if (model) {
+          localStorage.setItem(CHAT_MODEL_STORAGE, model);
+        } else {
+          localStorage.removeItem(CHAT_MODEL_STORAGE);
+        }
+        setStatus("ready", "Model updated", healthMeta);
+      });
+
+      keyModal.addEventListener("click", (event) => {
+        if (event.target === keyModal) {
+          closeKeyModal();
+          openKeyModalButton.focus();
+        }
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && keyModal.classList.contains("is-open")) {
+          closeKeyModal();
+          openKeyModalButton.focus();
+        }
+      });
       questionEl.addEventListener("keydown", (event) => {
         if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
           askQuestion();

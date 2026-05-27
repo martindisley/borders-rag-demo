@@ -4,7 +4,9 @@
 - This project requires Python 3.12 and is managed with `uv`.
 - Install runtime deps with `uv sync`; Render uses `pip install uv && uv sync --frozen`.
 - Run locally with `uv run python -m uvicorn app:app --host 127.0.0.1 --port 8000 --reload`.
-- App startup fails unless `OPENAI_API_KEY` is present and `INDEX_PATH` exists; the default index is `extraction_output/index/openai-text-embedding-3-small.chunks.jsonl`.
+- App startup requires `INDEX_PATH` to exist; the default index is `extraction_output/index/openai-text-embedding-3-small.chunks.jsonl`.
+- Queries require an OpenAI key via `X-OpenAI-API-Key` (BYOK) unless `OPENAI_API_KEY` is configured as server-side fallback.
+- `/api/query` also accepts optional `X-OpenAI-Chat-Model` to override the answer model per request.
 - Test command is `uv run --group dev pytest`.
 - There are no configured lint, format, or typecheck commands in this repo. A cheap syntax check is `uv run python -m py_compile app.py scripts/*.py tests/*.py`.
 

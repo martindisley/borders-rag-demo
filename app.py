@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import math
 import os
+import re
 import urllib.error
 import urllib.request
 from contextlib import asynccontextmanager
@@ -11,7 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Header, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
@@ -59,15 +60,19 @@ class QueryResponse(BaseModel):
     sources: list[SourceResult]
 
 
-def post_json(url: str, headers: dict[str, str], payload: dict) -> dict:
+def post_json(
+    url: str, headers: dict[str, str], payload: dict, timeout_seconds: float = 45.0
+) -> dict:
     body = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(url, method="POST", headers=headers, data=body)
     try:
-        with urllib.request.urlopen(req) as resp:
+        with urllib.request.urlopen(req, timeout=timeout_seconds) as resp:
             return json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as e:
         detail = e.read().decode("utf-8")
         raise RuntimeError(f"HTTP {e.code} {detail}") from e
+    except urllib.error.URLError as e:
+        raise RuntimeError(f"Network error contacting upstream API: {e.reason}") from e
 
 
 def l2_norm(vec: list[float]) -> float:
@@ -117,11 +122,31 @@ class RAGService:
         return f"{base}#page={page_start}"
 
     def validate_config(self) -> None:
-        if not self.openai_api_key:
-            raise RuntimeError("OPENAI_API_KEY missing in environment/.env")
         resolved_index = self.project_root / self.index_path
         if not resolved_index.exists():
             raise RuntimeError(f"Embedding index not found: {resolved_index}")
+
+    def has_server_api_key(self) -> bool:
+        return bool(self.openai_api_key.strip())
+
+    def resolve_api_key(self, api_key_override: str | None = None) -> str:
+        if api_key_override and api_key_override.strip():
+            return api_key_override.strip()
+        if self.has_server_api_key():
+            return self.openai_api_key
+        raise RuntimeError(
+            "OpenAI API key required. Provide X-OpenAI-API-Key or set OPENAI_API_KEY."
+        )
+
+    def resolve_chat_model(self, chat_model_override: str | None = None) -> str:
+        if not chat_model_override:
+            return self.chat_model
+        model = chat_model_override.strip()
+        if not model:
+            return self.chat_model
+        if len(model) > 120 or not re.fullmatch(r"[A-Za-z0-9_.:-]+", model):
+            raise RuntimeError("Invalid chat model name in X-OpenAI-Chat-Model")
+        return model
 
     def load_index(self) -> None:
         resolved_index = self.project_root / self.index_path
@@ -151,9 +176,9 @@ class RAGService:
                 )
         self.chunks = chunks
 
-    def embed_query(self, text: str) -> list[float]:
+    def embed_query(self, text: str, api_key: str) -> list[float]:
         headers = {
-            "Authorization": f"Bearer {self.openai_api_key}",
+            "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
         }
         payload = {
@@ -166,8 +191,10 @@ class RAGService:
             raise RuntimeError("No embedding returned for query")
         return [float(v) for v in rows[0]["embedding"]]
 
-    def retrieve(self, question: str, top_k: int) -> list[tuple[float, IndexedChunk]]:
-        q_vec = self.embed_query(question)
+    def retrieve(
+        self, question: str, top_k: int, api_key: str
+    ) -> list[tuple[float, IndexedChunk]]:
+        q_vec = self.embed_query(question, api_key)
         q_norm = l2_norm(q_vec)
 
         scored: list[tuple[float, IndexedChunk]] = []
@@ -179,7 +206,11 @@ class RAGService:
         return scored[:top_k]
 
     def generate_answer(
-        self, question: str, ranked_chunks: list[tuple[float, IndexedChunk]]
+        self,
+        question: str,
+        ranked_chunks: list[tuple[float, IndexedChunk]],
+        api_key: str,
+        chat_model: str,
     ) -> str:
         context_parts: list[str] = []
         for i, (score, chunk) in enumerate(ranked_chunks, start=1):
@@ -211,11 +242,11 @@ class RAGService:
         )
 
         headers = {
-            "Authorization": f"Bearer {self.openai_api_key}",
+            "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
         }
         payload = {
-            "model": self.chat_model,
+            "model": chat_model,
             "temperature": 0.1,
             "messages": [
                 {"role": "system", "content": system_prompt},
@@ -228,9 +259,17 @@ class RAGService:
             raise RuntimeError("No completion choices returned")
         return str(choices[0]["message"]["content"]).strip()
 
-    def query(self, question: str, top_k: int) -> QueryResponse:
-        ranked = self.retrieve(question, top_k=top_k)
-        answer = self.generate_answer(question, ranked)
+    def query(
+        self,
+        question: str,
+        top_k: int,
+        api_key_override: str | None = None,
+        chat_model_override: str | None = None,
+    ) -> QueryResponse:
+        api_key = self.resolve_api_key(api_key_override)
+        chat_model = self.resolve_chat_model(chat_model_override)
+        ranked = self.retrieve(question, top_k=top_k, api_key=api_key)
+        answer = self.generate_answer(question, ranked, api_key, chat_model)
 
         sources: list[SourceResult] = []
         for i, (score, chunk) in enumerate(ranked, start=1):
@@ -275,6 +314,7 @@ def create_app(service: RAGService | None = None) -> FastAPI:
             "chunks_loaded": len(rag_service.chunks),
             "embedding_model": rag_service.embedding_model,
             "chat_model": rag_service.chat_model,
+            "server_key_available": rag_service.has_server_api_key(),
         }
 
     @app.get("/")
@@ -284,9 +324,20 @@ def create_app(service: RAGService | None = None) -> FastAPI:
         return FileResponse(WEB_INDEX)
 
     @app.post("/api/query", response_model=QueryResponse)
-    def query(req: QueryRequest) -> QueryResponse:
+    def query(
+        req: QueryRequest,
+        api_key_header: str | None = Header(default=None, alias="X-OpenAI-API-Key"),
+        chat_model_header: str | None = Header(
+            default=None, alias="X-OpenAI-Chat-Model"
+        ),
+    ) -> QueryResponse:
         try:
-            return rag_service.query(req.question, req.top_k)
+            return rag_service.query(
+                req.question,
+                req.top_k,
+                api_key_override=api_key_header,
+                chat_model_override=chat_model_header,
+            )
         except RuntimeError as e:
             raise HTTPException(status_code=500, detail=str(e)) from e
 

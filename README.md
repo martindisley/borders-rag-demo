@@ -41,7 +41,7 @@ The app is intentionally lightweight: FastAPI backend, in-memory cosine retrieva
 
 - Python 3.12
 - `uv`
-- OpenAI API key
+- OpenAI API key (for queries unless server fallback key is configured)
 - Optional: Mistral API key for selective OCR fallback during preprocessing
 
 ## Local Setup
@@ -51,7 +51,7 @@ cd /Users/martindisley/workspace/civic-crossref
 uv sync
 ```
 
-Create `.env`:
+Create `.env` (optional for local fallback key):
 
 ```bash
 OPENAI_API_KEY=...
@@ -73,9 +73,11 @@ Open `http://127.0.0.1:8000/`.
 ## API Endpoints
 
 - `GET /api/health`
-  - returns service status and loaded chunk count
+  - returns service status, loaded chunk count, and whether a server fallback key is configured
 - `POST /api/query`
   - body: `{ "question": "...", "top_k": 5 }`
+  - optional header: `X-OpenAI-API-Key: sk-...` (BYOK)
+  - optional header: `X-OpenAI-Chat-Model: gpt-4o-mini` (override answer model)
   - returns answer + source citations
 
 Example:
@@ -83,6 +85,7 @@ Example:
 ```bash
 curl -sS -X POST http://127.0.0.1:8000/api/query \
   -H "Content-Type: application/json" \
+  -H "X-OpenAI-API-Key: $OPENAI_API_KEY" \
   -d '{"question":"What does Policy HD1 cover?","top_k":5}'
 ```
 
@@ -133,12 +136,9 @@ Output (runtime index):
 
 This repo includes `render.yaml` for blueprint-based deploys.
 
-Required env vars in Render:
-
-- `OPENAI_API_KEY`
-
 Optional overrides:
 
+- `OPENAI_API_KEY` (optional server-side fallback; if omitted, clients must provide BYOK)
 - `OPENAI_CHAT_MODEL` (default `gpt-4o-mini`)
 - `OPENAI_EMBEDDING_MODEL` (default `text-embedding-3-small`)
 - `INDEX_PATH` (default `extraction_output/index/openai-text-embedding-3-small.chunks.jsonl`)
