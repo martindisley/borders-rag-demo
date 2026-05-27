@@ -1,8 +1,12 @@
 from __future__ import annotations
 
+import os
+from pathlib import Path
+
+import pytest
 from fastapi.testclient import TestClient
 
-from app import QueryResponse, RAGService, SourceResult, create_app
+from app import OPENAI_CHAT_URL, QueryResponse, RAGService, SourceResult, create_app, post_json
 
 
 class FakeRAGService:
@@ -163,3 +167,56 @@ def test_query_maps_runtime_error_to_http_500() -> None:
 
     assert response.status_code == 500
     assert response.json() == {"detail": "upstream error"}
+
+
+def test_query_rejects_unsupported_chat_model() -> None:
+    service = RAGService(Path(__file__).resolve().parents[1])
+
+    try:
+        service.resolve_chat_model("o4-mini")
+        assert False, "Expected resolve_chat_model to fail for unsupported model"
+    except RuntimeError as exc:
+        assert "Unsupported chat model" in str(exc)
+
+
+@pytest.mark.parametrize(
+    "model",
+    [
+        "gpt-4o",
+        "gpt-4o-mini",
+        "gpt-4.1",
+        "gpt-4.1-mini",
+        "gpt-4.1-nano",
+        "gpt-5",
+        "gpt-5-mini",
+        "gpt-5-nano",
+    ],
+)
+def test_query_accepts_supported_chat_models(model: str) -> None:
+    service = RAGService(Path(__file__).resolve().parents[1])
+    assert service.resolve_chat_model(model) == model
+
+
+@pytest.mark.integration
+def test_openai_chat_completion_integration() -> None:
+    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    if not api_key:
+        pytest.skip("OPENAI_API_KEY not set")
+
+    model = os.environ.get("INTEGRATION_OPENAI_MODEL", "gpt-5-nano")
+    response = post_json(
+        OPENAI_CHAT_URL,
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        },
+        payload={
+            "model": model,
+            "messages": [
+                {"role": "user", "content": "Reply with exactly: ok"},
+            ],
+        },
+    )
+
+    assert "choices" in response
+    assert len(response["choices"]) > 0

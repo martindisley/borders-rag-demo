@@ -12,11 +12,22 @@
       :root {
         --bg: #f2efe5;
         --panel: #fffcf4;
+        --surface: #fff;
+        --surface-soft: #fffcf2;
         --ink: #1f1b17;
         --muted: #5c5346;
         --line: #cbc2b3;
+        --line-strong: #a89d8c;
         --accent: #0f7a5c;
+        --accent-strong: #0a5f48;
+        --accent-soft: #118868;
         --accent-2: #8f3f2f;
+        --accent-2-strong: #7b2f22;
+        --accent-2-soft: #f6e3dc;
+        --accent-2-line: #d7b2a7;
+        --status-warn: #c8971a;
+        --bg-glow-a: #e6dfd0;
+        --bg-glow-b: #dfe7df;
         --chip: #ece6da;
         --shadow: 0 16px 40px rgba(31, 27, 23, 0.08);
       }
@@ -36,8 +47,8 @@
         font-family: Manrope, sans-serif;
         color: var(--ink);
         background:
-          radial-gradient(circle at 80% 0%, #e6dfd0 0%, transparent 44%),
-          radial-gradient(circle at 0% 100%, #dfe7df 0%, transparent 40%),
+          radial-gradient(circle at 80% 0%, var(--bg-glow-a) 0%, transparent 44%),
+          radial-gradient(circle at 0% 100%, var(--bg-glow-b) 0%, transparent 40%),
           var(--bg);
         position: relative;
         overflow-x: hidden;
@@ -160,7 +171,7 @@
 
       .doc-card:hover {
         transform: translateY(-2px);
-        border-color: #a89d8c;
+        border-color: var(--line-strong);
         box-shadow: 0 12px 28px rgba(31, 27, 23, 0.1);
       }
 
@@ -267,7 +278,7 @@
       }
 
       .status-dot[data-state="checking"] {
-        background: #c8971a;
+        background: var(--status-warn);
         animation: pulse 1.2s ease-in-out infinite;
       }
 
@@ -276,7 +287,7 @@
       }
 
       .status-dot[data-state="busy"] {
-        background: #c8971a;
+        background: var(--status-warn);
         animation: pulse 1.2s ease-in-out infinite;
       }
 
@@ -342,7 +353,7 @@
         resize: vertical;
         border-radius: 10px;
         border: 1px solid var(--line);
-        background: #fff;
+        background: var(--surface);
         color: var(--ink);
         padding: 12px;
         font: inherit;
@@ -353,7 +364,7 @@
         width: 100%;
         border-radius: 10px;
         border: 1px solid var(--line);
-        background: #fff;
+        background: var(--surface);
         color: var(--ink);
         padding: 10px 12px;
         font: inherit;
@@ -392,15 +403,15 @@
       select {
         border-radius: 8px;
         border: 1px solid var(--line);
-        background: white;
+        background: var(--surface);
         padding: 7px 8px;
       }
 
       button {
-        border: 1px solid #0a5f48;
+        border: 1px solid var(--accent-strong);
         border-radius: 8px;
-        background: linear-gradient(160deg, #118868, var(--accent));
-        color: #fff;
+        background: linear-gradient(160deg, var(--accent-soft), var(--accent));
+        color: var(--surface);
         padding: 8px 12px;
         font-weight: 700;
         cursor: pointer;
@@ -413,7 +424,7 @@
 
       .button-secondary {
         border-color: var(--line);
-        background: #fff;
+        background: var(--surface);
         color: var(--ink);
       }
 
@@ -504,7 +515,7 @@
         border: 1px solid var(--line);
         border-radius: 10px;
         padding: 10px;
-        background: #fff;
+        background: var(--surface);
       }
 
       .source-item.clickable {
@@ -521,13 +532,13 @@
 
       .source-item.clickable:hover {
         transform: translateY(-1px);
-        border-color: #a89d8c;
-        background: #fffcf2;
+        border-color: var(--line-strong);
+        background: var(--surface-soft);
         box-shadow: 0 8px 20px rgba(31, 27, 23, 0.08);
       }
 
       .source-item.clickable:focus-visible {
-        outline: 2px solid #0f7a5c;
+        outline: 2px solid var(--accent);
         outline-offset: 2px;
       }
 
@@ -550,19 +561,14 @@
       }
 
       .source-score {
-        color: var(--accent-2);
-      }
-
-      .source-excerpt {
-        margin: 0;
-        line-height: 1.45;
-        font-size: 0.92rem;
-      }
-
-      .source-meta {
-        margin-top: 7px;
-        color: var(--muted);
-        font-size: 0.8rem;
+        margin-left: auto;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+        color: var(--accent-2-strong);
+        background: var(--accent-2-soft);
+        border: 1px solid var(--accent-2-line);
+        border-radius: 999px;
+        padding: 1px 8px;
       }
 
       @media (max-width: 900px) {
@@ -587,15 +593,15 @@
         <div class="top-left">
           <header class="mast">
             <h1 class="wordmark">Civic Crossref</h1>
-            <p class="subtitle">Borders Council Planning Doc Demo</p>
+            <p class="subtitle">Scottish Borders Council Demo</p>
             <p class="instructions">
-              This is a prototype implementation of Civic Crossref — a design pattern for helping the public scrutinise council policy by querying and cross-referencing planning and delivery document pairs. The documents queried here are hardcoded to two specific Scottish Borders Council publications.
+              This is a prototype implementation of Civic Crossref — a design pattern for helping the public scrutinise council policy by querying and cross-referencing planning and delivery document pairs.
             </p>
           </header>
 
           <section class="docs-section">
             <h2 class="docs-heading">Source Documents</h2>
-            <p class="docs-intro">This app enables members of the public to scrutinise the implementation of council policy by cross-referencing a planning policy document with its corresponding delivery programme.</p>
+            <p class="docs-intro">This demo currently queries two hardcoded Scottish Borders Council publications: the Local Development Plan (policy intent) and the Delivery Programme (implementation status and constraints).</p>
             <div class="docs-grid">
               <a class="doc-card doc-card--a" href="https://www.scotborders.gov.uk/downloads/file/12939/adopted-ldp2-volume-1-policies" target="_blank" rel="noopener noreferrer">
                 <span class="doc-label">Document A — Policy</span>
@@ -634,7 +640,11 @@
                   <option value="gpt-4o-mini">gpt-4o-mini</option>
                   <option value="gpt-4.1-mini">gpt-4.1-mini</option>
                   <option value="gpt-4.1-nano">gpt-4.1-nano</option>
-                  <option value="o4-mini">o4-mini</option>
+                  <option value="gpt-4o">gpt-4o</option>
+                  <option value="gpt-4.1">gpt-4.1</option>
+                  <option value="gpt-5">gpt-5</option>
+                  <option value="gpt-5-mini">gpt-5-mini</option>
+                  <option value="gpt-5-nano">gpt-5-nano</option>
                 </select>
               </div>
               <button id="clear-key" class="button-secondary" type="button">Clear saved key</button>
@@ -797,8 +807,6 @@
               <span>p.${Number(s.page_start)}</span>
               <span class="source-score">score ${Number(s.score).toFixed(3)}</span>
             </div>
-            <p class="source-excerpt">${escapeHtml(s.excerpt)}</p>
-            <div class="source-meta">${escapeHtml(s.source_file)} | chunk ${escapeHtml(s.chunk_id)}</div>
           `;
           sourcesEl.appendChild(item);
         }

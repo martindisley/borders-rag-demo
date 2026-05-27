@@ -5,6 +5,7 @@ import json
 import math
 import os
 import re
+import socket
 import urllib.error
 import urllib.request
 from contextlib import asynccontextmanager
@@ -19,6 +20,16 @@ from pydantic import BaseModel, Field
 
 OPENAI_EMBEDDINGS_URL = "https://api.openai.com/v1/embeddings"
 OPENAI_CHAT_URL = "https://api.openai.com/v1/chat/completions"
+COMPATIBLE_CHAT_MODELS = {
+    "gpt-4o",
+    "gpt-4o-mini",
+    "gpt-4.1",
+    "gpt-4.1-mini",
+    "gpt-4.1-nano",
+    "gpt-5",
+    "gpt-5-mini",
+    "gpt-5-nano",
+}
 
 
 @dataclass
@@ -71,6 +82,14 @@ def post_json(
     except urllib.error.HTTPError as e:
         detail = e.read().decode("utf-8")
         raise RuntimeError(f"HTTP {e.code} {detail}") from e
+    except TimeoutError as e:
+        raise RuntimeError(
+            f"Upstream API timed out after {int(timeout_seconds)}s"
+        ) from e
+    except socket.timeout as e:
+        raise RuntimeError(
+            f"Upstream API timed out after {int(timeout_seconds)}s"
+        ) from e
     except urllib.error.URLError as e:
         raise RuntimeError(f"Network error contacting upstream API: {e.reason}") from e
 
@@ -139,13 +158,16 @@ class RAGService:
         )
 
     def resolve_chat_model(self, chat_model_override: str | None = None) -> str:
-        if not chat_model_override:
-            return self.chat_model
-        model = chat_model_override.strip()
+        model = self.chat_model if not chat_model_override else chat_model_override.strip()
         if not model:
             return self.chat_model
         if len(model) > 120 or not re.fullmatch(r"[A-Za-z0-9_.:-]+", model):
             raise RuntimeError("Invalid chat model name in X-OpenAI-Chat-Model")
+        if model not in COMPATIBLE_CHAT_MODELS:
+            allowed = ", ".join(sorted(COMPATIBLE_CHAT_MODELS))
+            raise RuntimeError(
+                f"Unsupported chat model '{model}'. Allowed models: {allowed}"
+            )
         return model
 
     def load_index(self) -> None:
@@ -232,12 +254,13 @@ class RAGService:
             "When relevant, distinguish policy intent (LDP) from delivery evidence (Delivery Programme). "
             "When sources from both documents are available, cross-reference both and cite each explicitly. "
             "If only one document is represented in retrieved sources, state that limitation clearly. "
+            "Write the answer as full prose paragraphs, not bullet lists split by document. "
             "Cite sources inline as [S1], [S2], etc. Keep the answer concise, factual, and explicit about uncertainty."
         )
         user_prompt = (
             f"Question:\n{question}\n\n"
             f"Sources:\n{context}\n\n"
-            "Provide a direct answer with inline source tags. "
+            "Provide a direct paragraph-form answer with inline source tags. "
             "If possible, include one brief sentence that compares policy intent vs delivery status."
         )
 
@@ -247,7 +270,6 @@ class RAGService:
         }
         payload = {
             "model": chat_model,
-            "temperature": 0.1,
             "messages": [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
