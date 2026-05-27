@@ -39,8 +39,8 @@ The app is intentionally lightweight: FastAPI backend, in-memory cosine retrieva
 
 ## Prerequisites
 
-- Python 3.11+
-- `uv` (recommended)
+- Python 3.12
+- `uv`
 - OpenAI API key
 - Optional: Mistral API key for selective OCR fallback during preprocessing
 
@@ -48,7 +48,6 @@ The app is intentionally lightweight: FastAPI backend, in-memory cosine retrieva
 
 ```bash
 cd /Users/martindisley/workspace/civic-crossref
-uv venv .venv
 uv sync
 ```
 
