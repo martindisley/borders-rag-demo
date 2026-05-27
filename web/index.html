@@ -465,6 +465,10 @@
         line-height: 1.45;
       }
 
+      .modal-text + .modal-text {
+        margin-top: -2px;
+      }
+
       .modal-field {
         display: grid;
         gap: 6px;
@@ -686,6 +690,7 @@
       <div class="modal-card">
         <h3 id="key-modal-title" class="modal-title">OpenAI API key</h3>
         <p id="key-modal-text" class="modal-text">Saved locally in this browser and sent as <code>X-OpenAI-API-Key</code> for each query.</p>
+        <p class="modal-text">An API key is your personal OpenAI access token. This app needs it to run model and embedding requests for your question.</p>
         <div class="modal-field">
           <label for="modal-api-key">API key</label>
           <input id="modal-api-key" type="password" placeholder="sk-..." autocomplete="off" spellcheck="false" />
@@ -718,6 +723,7 @@
       let serverKeyAvailable = false;
       let healthMeta = "";
       let currentApiKey = "";
+      let promptedForKeyOnLoad = false;
 
       function updateByokState() {
         if (currentApiKey) {
@@ -758,6 +764,10 @@
               chatModelSelectEl.value = data.chat_model;
             }
             updateByokState();
+            if (!currentApiKey && !serverKeyAvailable && !promptedForKeyOnLoad) {
+              promptedForKeyOnLoad = true;
+              openKeyModal();
+            }
             setStatus(
               "ready",
               "Ready",
