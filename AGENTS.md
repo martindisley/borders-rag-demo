@@ -1,7 +1,7 @@
 # Agent Notes
 
 ## Setup And Runtime
-- Trust `pyproject.toml`/`.python-version` over README wording: this project requires Python 3.12 and is managed with `uv`.
+- This project requires Python 3.12 and is managed with `uv`.
 - Install runtime deps with `uv sync`; Render uses `pip install uv && uv sync --frozen`.
 - Run locally with `uv run python -m uvicorn app:app --host 127.0.0.1 --port 8000 --reload`.
 - App startup fails unless `OPENAI_API_KEY` is present and `INDEX_PATH` exists; the default index is `extraction_output/index/openai-text-embedding-3-small.chunks.jsonl`.
